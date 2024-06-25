@@ -1,0 +1,36 @@
+jobs:
+- job: Build
+  displayName: 'Build and publish infrastructure artifacts'
+  pool:
+    vmImage: 'ubuntu-latest'
+  variables:
+    foundationBicepPath: '$(System.DefaultWorkingDirectory)/infrastructure/bicep/01-foundation.bicep'
+    mainBicepPath: '$(System.DefaultWorkingDirectory)/infrastructure/bicep/02-main.bicep'
+    armParametersScriptPath: '$(System.DefaultWorkingDirectory)/pipelines/scripts/Build-ARM-Parameter-Files.ps1'
+    bicepParameterFilesPath: '$(System.DefaultWorkingDirectory)/infrastructure/bicep/parameters'
+    bicepArtifactsPath: '$(System.DefaultWorkingDirectory)/infrastructure/bicep'
+  steps:
+  - task: Bash@3
+    displayName: 'Build Bicep templates'
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo 'Building foundation bicep template'
+        bicep build $(foundationBicepPath)
+        echo 'Building main bicep template'
+        bicep build $(mainBicepPath)
+
+  # - task: Powershell@2
+  #   displayName: 'Build ARM parameter files'
+  #   inputs:
+  #     filePath: $(armParametersScriptPath)
+  #     workingDirectory: $(bicepParameterFilesPath)
+  
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Bicep templates and parameters'
+    inputs:
+      targetPath: $(bicepArtifactsPath)
+      artifact: 'bicep-artifacts'
+      publishLocation: 'pipeline'
+  
+  
