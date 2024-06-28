@@ -89,6 +89,9 @@ param enableZoneRedundancy bool = false
 @description('Tags to be applied to resources deployed in this template')
 param tags object = {}
 
+@description('An array of App Service Plan configurations')
+param appServicePlans udt.appSerivcePlanConfigurations
+
 // APIM
 var apimName = '${workloadName}-${environmentSuffix}-apim'
 var apimIdentityName = '${apimName}-uami'
@@ -123,6 +126,10 @@ var wafPolicyDeploymentName = '${wafPolicyName}-${buildId}'
 
 var appGwName = '${workloadName}-${environmentSuffix}-appgw'
 var appGwDeploymentName = '${appGwName}-${buildId}'
+
+// App Insights
+var appInsightsName = '${workloadName}-${environmentSuffix}-ai'
+var appInsightsDeploymentName = '${appInsightsName}-${buildId}'
 
 // URI to the App Insights connection string in Key Vault
 var appInsightsConnectionStringSecretUri = formatKeyVaultSecretUri(keyVaultName, appInsightsConnectionStringKeyVaultSecretName)
@@ -159,6 +166,18 @@ resource appGwSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-11-01' exis
 resource laws 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   name: logAnalyticsWorkspaceName
   scope: resourceGroup()
+}
+
+module ai './modules/observability/applicationInsights.bicep' = {
+  name: appInsightsDeploymentName
+  params: {
+    location: location
+    appInsightsName: appInsightsName
+    buildId: buildId
+    keyVaultName: keyVaultName
+    logAnalyticsWorkspaceId: laws.id
+    tags: tags
+  }
 }
 
 // User assigned managed identity for APIM
@@ -319,3 +338,17 @@ module appGw './modules/applicationGateway/applicationGateway.bicep' = {
     wafPolicyResourceId: waf.outputs.id
   }
 }
+
+module asps './modules/appService/appServicePlan.bicep' = [for plan in appServicePlans: {
+  name: '${plan.appServicePlanNameSuffix}-${buildId}'
+  scope: resourceGroup(plan.resourceGroupName)
+  params: {
+    location: location
+    appServicePlanName: '${workloadName}-${environmentSuffix}-${plan.appServicePlanNameSuffix}-asp'
+    aseResourceId: ase.outputs.id
+    skuName: plan.appServicePlanSku
+    skuCapacity: plan.instanceCount
+    zoneRedundant: enableZoneRedundancy
+    tags: tags
+  }
+}]

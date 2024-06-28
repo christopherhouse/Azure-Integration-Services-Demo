@@ -240,7 +240,7 @@ resource kvRoleAssignmentSMI 'Microsoft.Authorization/roleAssignments@2022-04-01
   name: guid(subscription().subscriptionId, kvSecretsUserRoleId, apiManagementService.id)
   scope: kv
   properties: {
-    principalId: smi.properties.clientId
+    principalId: smi.properties.principalId
     roleDefinitionId: kvSecretsUserRole.id
     principalType: 'ServicePrincipal'
   }
@@ -250,7 +250,7 @@ resource kvSMICertRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-0
   name: guid(subscription().subscriptionId, kvCertificateUserRoleId, apiManagementService.id)
   scope: kv
   properties: {
-    principalId: smi.properties.clientId
+    principalId: smi.properties.principalId
     roleDefinitionId: kvCertificateUserRole.id
     principalType: 'ServicePrincipal'
   }

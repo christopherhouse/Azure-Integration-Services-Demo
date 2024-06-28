@@ -32,10 +32,6 @@ var virtualNetworkDeploymentName = '${virtualNetworkName}-${deploymentId}'
 var keyVaultName = '${workloadName}-${environmentSuffix}-kv'
 var keyVaultDeploymentName = '${keyVaultName}-${deploymentId}'
 
-// App Insights
-var appInsightsName = '${workloadName}-${environmentSuffix}-ai'
-var appInsightsDeploymentName = '${appInsightsName}-${deploymentId}'
-
 // App Gateway Public IP
 var appGatewayPublicIpName = '${workloadName}-${environmentSuffix}-appgw-pip'
 var appGatewayPublicIpDeploymentName = '${appGatewayPublicIpName}-${deploymentId}'
@@ -110,18 +106,6 @@ module kv './modules/keyVault/privateKeyVault.bicep' = {
     logAnalyticsWorkspaceResourceId: laws.outputs.id
     servicesSubnetResourceId: vnet.outputs.servicesSubnetResourceId
     vnetResourceId: vnet.outputs.id
-    tags: tags
-  }
-}
-
-module ai './modules/observability/applicationInsights.bicep' = {
-  name: appInsightsDeploymentName
-  params: {
-    location: location
-    appInsightsName: appInsightsName
-    buildId: deploymentId
-    keyVaultName: kv.outputs.name
-    logAnalyticsWorkspaceId: laws.outputs.id
     tags: tags
   }
 }
