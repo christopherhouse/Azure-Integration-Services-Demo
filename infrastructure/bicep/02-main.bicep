@@ -349,6 +349,7 @@ module asps './modules/appService/appServicePlan.bicep' = [for plan in appServic
     skuName: plan.appServicePlanSku
     skuCapacity: plan.instanceCount
     zoneRedundant: enableZoneRedundancy
-    tags: tags
+    tags: plan.tags
+    webPlanContributorGroupObjectId: plan.contributorGroupObjectId
   }
 }]

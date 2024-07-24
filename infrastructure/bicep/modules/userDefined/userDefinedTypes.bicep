@@ -68,3 +68,16 @@ type appServicePlanConfiguration = {
 @export()
 @description('An array of App Service Plan Configurations')
 type appSerivcePlanConfigurations = appServicePlanConfiguration[]
+
+@export()
+@description('Configuration for an API Management workspace')
+type apimWorkspaceConfiguration = {
+  @description('The name of the API Management service workspace to create')
+  name: string
+
+  @description('The Entra object id of the group that will have contributor access to the workspace')
+  workspaceContributorGroupObjectId: string
+}
+
+@export()
+type apimWorkspaceConfigurations = apimWorkspaceConfiguration[]

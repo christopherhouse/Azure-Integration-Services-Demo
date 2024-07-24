@@ -43,7 +43,7 @@ resource ra 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (length(we
   properties: {
     principalId: webPlanContributorGroupObjectId
     roleDefinitionId: role.id
-    principalType: 'ServicePrincipal'
+    principalType: 'Group'
   }
 }
 

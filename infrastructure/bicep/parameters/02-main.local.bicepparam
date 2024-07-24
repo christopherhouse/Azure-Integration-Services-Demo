@@ -47,33 +47,18 @@ param appGatewayPublicIpName = 'bw-ais-loc-appgw-pip'
 param appGatewayWafMode = 'Prevention'
 param appServicePlans = [
   {
-    appServicePlanNameSuffix: 'ordering'
+    appServicePlanNameSuffix: 'custsvc'
     appServicePlanSku: 'I1v2'
-    contributorGroupObjectId: '178c2375-7954-4c64-a9cf-8f81443e993c'
+    contributorGroupObjectId: 'c09efc41-06c1-4480-b3af-1bdab4f127b8'
     instanceCount: 1
     zones: ['1']
-    resourceGroupName: 'BW-AIS-ORDERING-DEV'
+    resourceGroupName: 'BW-AIS-CUSTSVC-DEV'
     tags: {
-      Workload: 'Integration Platform'
+      Workload: 'Integration Platform - Customer Service'
       Environment: environmentSuffix
       CostCenter: 'A-012345-6789'
       Owner: 'Chris House'
       OwnerEmail: 'chhouse@microsoft.com'
     }
-  }
-  {
-    appServicePlanNameSuffix: 'catalog'
-    appServicePlanSku: 'I1v2'
-    contributorGroupObjectId: '11871994-5b79-4ff7-8b8d-4234d9283d33'
-    instanceCount: 1
-    zones: ['1']
-    resourceGroupName: 'BW-AIS-CATALOG-DEV'
-    tags: {
-      Workload: 'Integration Platform'
-      Environment: environmentSuffix
-      CostCenter: 'F-982578-9876'
-      Owner: 'Chris House'
-      OwnerEmail: 'chhouse@microsoft.com'
-    }
-  }  
+  } 
 ]
