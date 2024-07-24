@@ -25,6 +25,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
         name: subnetConfiguration.bastionSubnet.name
         properties: {
           addressPrefix: subnetConfiguration.bastionSubnet.addressPrefix
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
         }
       }
       {
@@ -77,6 +79,37 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
           addressPrefix: subnetConfiguration.runnersSubnet.addressPrefix
           networkSecurityGroup: {
             id: defaultNsgResourceId
+          }
+        }
+      }
+    ]
+  }
+}
+
+resource pip 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
+  name: '${vnet.name}-bas-pip'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+  }
+
+}
+
+resource bas 'Microsoft.Network/bastionHosts@2024-01-01' = {
+  name: '${vnet.name}-bas'
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          subnet: {
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnetConfiguration.bastionSubnet.name)
+          }
+          publicIPAddress: {
+            id: pip.id
           }
         }
       }
