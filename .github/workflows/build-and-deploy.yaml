@@ -68,6 +68,10 @@ jobs:
         name: 'bicep-${{ github.run_id }}'
         path: infrastructure/bicep
 
+    - name: Install Bicep
+      run: |
+        az bicep install
+
     - name: Deploy foundation Bicep template
       run: |
         az deployment group create --name 'foundation-${{ github.run_id }}' --resource-group $RESOURCE_GROUP_NAME --template-file bicep-${{ github.run_id }}/bicep/01-foundation.bicep --parameters @bicep-${{ github.run_id }}/bicep/parameters/01-foundation.${{ env.ENV_NAME }}.bicepparam
