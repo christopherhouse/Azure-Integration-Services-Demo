@@ -100,6 +100,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
 
 resource bas 'Microsoft.Network/bastionHosts@2024-01-01' = {
   name: '${vnet.name}-bas'
+  location: location
   properties: {
     ipConfigurations: [
       {
