@@ -1,10 +1,10 @@
-import * as vn from './modules/virtualNetwork/virtualNetwork.bicep'
+import * as udt from './modules/userDefined/userDefinedTypes.bicep'
 
 param workloadName string
 param environmentSuffix string
 param location string
 param addressPrefixes array
-param subnetConfigurations vn.subnetConfigurationsType
+param subnetConfigurations udt.subnetConfigurationsType
 param logAnalyticsRetentionDays int
 param deploymentId string = substring(newGuid(), 0, 8)
 param tags object = {}

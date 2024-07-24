@@ -24,6 +24,10 @@ param subnetConfigurations = {
     name: 'appGw'
     addressPrefix: '10.0.5.0/24'
   }
+  bastionSubnet: {
+    name: 'AzureBastionSubnet'
+    addressPrefix: '10.0.0.0/26'
+  }
 }
 param logAnalyticsRetentionDays = 90
 param tags = {

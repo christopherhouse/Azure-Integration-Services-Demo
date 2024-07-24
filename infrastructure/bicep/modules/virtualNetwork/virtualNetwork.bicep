@@ -1,26 +1,14 @@
+import * as udt from '../userDefined/userDefinedTypes.bicep'
+
 param virtualNetworkName string
 param location string
 param virtualNetworkAddressSpaces string[]
 param apimNsgResourceId string
 param appGatewayNsgResourceId string
 param defaultNsgResourceId string
-param subnetConfiguration subnetConfigurationsType
+param subnetConfiguration udt.subnetConfigurationsType
 param tags object = {}
 
-@export()
-type subnetConfigurationType = {
-  name: string
-  addressPrefix: string
-}
-
-@export()
-type subnetConfigurationsType = {
-  apimSubnet: subnetConfigurationType
-  runnersSubnet: subnetConfigurationType
-  aseSubnet: subnetConfigurationType
-  servicesSubnet: subnetConfigurationType
-  appGwSubnet: subnetConfigurationType
-}
 
 var aseDelegation = 'Microsoft.Web/hostingEnvironments'
 
@@ -33,6 +21,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
       addressPrefixes: virtualNetworkAddressSpaces
     }
     subnets: [
+      {
+        name: subnetConfiguration.bastionSubnet.name
+        properties: {
+          addressPrefix: subnetConfiguration.bastionSubnet.addressPrefix
+        }
+      }
       {
         name: subnetConfiguration.apimSubnet.name
         properties: {
