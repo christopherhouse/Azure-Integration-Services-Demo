@@ -1,0 +1,22 @@
+configuration:
+  AZURE_BICEP_FILE_EXPANSION_TIMEOUT: 15
+rule:
+  exclude:
+  - Azure.APIM.MultiRegion
+  - Azure.AppService.ARRAffinity
+  - Azure.Storage.UseReplication
+  - Azure.AppService.WebProbe
+  - Azure.AppService.WebProbePath
+  # Disabling this rule because it's incorrectly flagging that the appgw module isn't using secure values where it should
+  - Azure.Deployment.SecureValue
+
+suppression:
+  # Suppress APIM AZ rule for test since we're not using AZs in test to control cost
+  Azure.APIM.AvailabilityZone:
+  - bw-ais-int-test-apim
+  Azure.AppService.PlanInstanceCount:
+  - bw-ais-loc-la-asp
+  Azure.NSG.LateralTraversal:
+  # ARM incorrectly thinks this nsg blocks all outbound to the internet so we can't block outbound ssh/rdp
+  - bw-ais-loc-appgw-nsg 
+

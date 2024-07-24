@@ -1,0 +1,31 @@
+parameters:
+- name: psRuleModules
+  type: string
+- name: psRuleBaseline
+  type: string
+
+jobs:
+- job: PSRule
+  variables:
+    outputPath: '$(System.DefaultWorkingDirectory)/reports/psrule.xml'
+  pool:
+      vmImage: ubuntu-22.04
+  displayName: 'Run PSRule scan'
+  steps:
+  - task: ps-rule-assert@2
+    displayName: 'Run PSRule scan'
+    continueOnError: true
+    inputs:
+      inputType: 'repository'
+      modules: ${{ parameters.psRuleModules }}
+      baseline: ${{ parameters.psRuleBaseline }}
+      outputFormat: 'NUnit3'
+      outputPath: $(outputPath)
+  
+
+  - task: PublishTestResults@2
+    displayName: 'Publish PSRule scan results'
+    inputs:
+      testResultsFiles: $(outputPath)
+      testRunTitle: 'PSRule scan results'
+      testResultsFormat: 'NUnit'

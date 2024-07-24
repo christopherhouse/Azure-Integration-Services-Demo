@@ -1,0 +1,10 @@
+trigger: none
+
+stages:
+- stage: Scan
+  displayName: 'Scan Bicep code'
+  jobs:
+  - template: templates/psrule.yaml
+    parameters:
+      psRuleModules: 'PSRule.Rules.Azure,PSRule.Rules.CAF'
+      psRuleBaseline: 'Azure.GA_2024_03'

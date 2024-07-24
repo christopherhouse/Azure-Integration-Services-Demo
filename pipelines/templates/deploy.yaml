@@ -1,0 +1,75 @@
+parameters:
+- name: devOpsEnvironmentName
+  type: string
+- name: environmentName
+  type: string
+- name: agentPoolName
+  type: string
+- name: serviceConnectionName
+  type: string
+- name: region
+  type: string
+- name: resourceGroupName
+  type: string
+- name: deployFoundation
+  type: boolean
+- name: deployMain
+  type: boolean
+
+stages:
+- stage: 'Deploy${{ parameters.environmentName }}'
+  displayName: 'Deploy'
+  jobs:
+  - deployment: 'DeployIntegrationInfrastrucutre${{ parameters.environmentName }}'
+    displayName: 'Deploy Integration Infrastrucutre'
+    pool:
+      name: ${{parameters.agentPoolName}}
+    environment: '${{ parameters.devOpsEnvironmentName }}'
+    variables:
+
+    - name: bicepArtifactName
+      value: 'bicep-artifacts'
+    - name: foundationBicepPath
+      value: $(Pipeline.Workspace)/$(bicepArtifactName)/01-foundation.bicep
+    - name: mainBicepPath
+      value: $(Pipeline.Workspace)/$(bicepArtifactName)/02-main.bicep
+    - name: foundationParametersPath
+      value: $(Pipeline.Workspace)/$(bicepArtifactName)/parameters/01-foundation.${{ parameters.environmentName }}.bicepparam
+    - name: mainParametersPath
+      value: $(Pipeline.Workspace)/$(bicepArtifactName)/parameters/02-main.${{ parameters.environmentName }}.bicepparam
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Bicep templates and parameters'
+            inputs:
+              artifact: $(bicepArtifactName)
+
+          - task: AzureResourceManagerTemplateDeployment@3
+            displayName: 'Deploy foundation Bicep template'
+            condition: eq('${{parameters.deployFoundation}}', true)
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: '${{ parameters.serviceConnectionName }}'
+              resourceGroupName: '${{ parameters.resourceGroupName }}'
+              csmFile: $(foundationBicepPath)
+              csmParametersFile: $(foundationParametersPath)
+              deploymentName: $(Build.BuildId)
+              deploymentMode: 'Incremental'
+              overrideParameters: '-deploymentId $(Build.BuildId)'
+              location: '${{ parameters.region }}'
+          
+          - task: AzureResourceManagerTemplateDeployment@3
+            displayName: 'Deploy main Bicep template'
+            condition: eq('${{parameters.deployMain}}', true)
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: '${{ parameters.serviceConnectionName }}'
+              resourceGroupName: '${{ parameters.resourceGroupName }}'
+              csmFile: $(mainBicepPath)
+              csmParametersFile: $(mainParametersPath)
+              deploymentName: $(Build.BuildId)
+              deploymentMode: 'Incremental'
+              overrideParameters: '-buildId $(Build.BuildId)'
+              location: '$(region)'
