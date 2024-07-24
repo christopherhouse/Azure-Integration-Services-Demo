@@ -101,7 +101,17 @@ resource pip 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
 resource bas 'Microsoft.Network/bastionHosts@2024-01-01' = {
   name: '${vnet.name}-bas'
   location: location
+  sku: {
+    name: 'Standard'
+  }
   properties: {
+    scaleUnits: 2
+    enableFileCopy: true
+    enableIpConnect: false
+    enableTunneling: true
+    disableCopyPaste: false
+    enableKerberos: false
+    enableShareableLink: false
     ipConfigurations: [
       {
         name: 'ipconfig1'
