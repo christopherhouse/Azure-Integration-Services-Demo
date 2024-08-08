@@ -81,3 +81,19 @@ type apimWorkspaceConfiguration = {
 
 @export()
 type apimWorkspaceConfigurations = apimWorkspaceConfiguration[]
+
+@export()
+type subnetConfigurationType = {
+  name: string
+  addressPrefix: string
+}
+
+@export()
+type subnetConfigurationsType = {
+  apimSubnet: subnetConfigurationType
+  runnersSubnet: subnetConfigurationType
+  aseSubnet: subnetConfigurationType
+  servicesSubnet: subnetConfigurationType
+  appGwSubnet: subnetConfigurationType
+  bastionSubnet: subnetConfigurationType
+}

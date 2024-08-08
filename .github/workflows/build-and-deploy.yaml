@@ -14,16 +14,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Bicep
-      run: |
-        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-        chmod +x bicep
-        sudo mv bicep /usr/local/bin/
+    # - name: Set up Bicep
+    #   run: |
+    #     curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+    #     chmod +x bicep
+    #     sudo mv bicep /usr/local/bin/
 
-    - name: Log in to Azure
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    # - name: Log in to Azure
+    #   uses: azure/login@v2
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Build Bicep templates
       run: |
@@ -36,7 +36,7 @@ jobs:
         name: 'bicep-${{ github.run_id }}'
         path: infrastructure/bicep
 
-  deploy:
+  deploy-dev:
     runs-on: ubuntu-latest
     needs: build
     environment: dev
@@ -48,15 +48,6 @@ jobs:
       ENV_NAME: dev
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    # - name: Set up Bicep
-    #   run: |
-    #     curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
-    #     chmod +x bicep
-    #     sudo mv bicep /usr/local/bin/
-
     - name: Log in to Azure
       uses: azure/login@v2
       with:
@@ -66,12 +57,50 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: 'bicep-${{ github.run_id }}'
-        path: infrastructure/bicep
+        path: bicep
+
+    - name: Install Bicep
+      run: |
+        az bicep install
 
     - name: Deploy foundation Bicep template
       run: |
-        az deployment group create --name 'foundation-${{ github.run_id }}' --resource-group $RESOURCE_GROUP_NAME --template-file bicep-${{ github.run_id }}/bicep/01-foundation.bicep --parameters @bicep-${{ github.run_id }}/bicep/parameters/01-foundation.${{ env.ENV_NAME }}.bicepparam
+        az deployment group create --name 'foundation-${{ github.run_id }}' --resource-group $RESOURCE_GROUP_NAME --template-file ./bicep/01-foundation.bicep --parameters ./bicep/parameters/01-foundation.${{ env.ENV_NAME }}.bicepparam
 
     - name: Deploy main Bicep template
       run: |
-        az deployment group create --name main-${{ github.run_id }} --resource-group $RESOURCE_GROUP_NAME --template-file bicep-${{ github.run_id }}/bicep/02-main.bicep --parameters @bicep-${{ github.run_id }}/bicep/parameters/02-main.${{ env.ENV_NAME }}.bicepparam
+        az deployment group create --name main-${{ github.run_id }} --resource-group $RESOURCE_GROUP_NAME --template-file ./bicep/02-main.bicep --parameters ./bicep/parameters/02-main.${{ env.ENV_NAME }}.bicepparam
+
+  deploy-test:
+    runs-on: ubuntu-latest
+    needs: [deploy-dev]
+    environment: test
+    env:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      RESOURCE_GROUP_NAME: ${{ vars.RESOURCE_GROUP_NAME }}
+      REGION: ${{ vars.REGION }}
+      ENV_NAME: test
+    steps:
+    - name: Log in to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Download Bicep folder artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: 'bicep-${{ github.run_id }}'
+        path: bicep
+
+    - name: Install Bicep
+      run: |
+        az bicep install
+
+    - name: Deploy foundation Bicep template
+      run: |
+        az deployment group create --name 'foundation-${{ github.run_id }}' --resource-group $RESOURCE_GROUP_NAME --template-file ./bicep/01-foundation.bicep --parameters ./bicep/parameters/01-foundation.${{ env.ENV_NAME }}.bicepparam
+
+    # - name: Deploy main Bicep template
+    #   run: |
+    #     az deployment group create --name main-${{ github.run_id }} --resource-group $RESOURCE_GROUP_NAME --template-file ./bicep/02-main.bicep --parameters ./bicep/parameters/02-main.${{ env.ENV_NAME }}.bicepparam
+        

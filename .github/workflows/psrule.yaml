@@ -1,0 +1,43 @@
+name: 'PSRule scan for Bicep'
+on:
+  push:
+    branches:
+    - 'main'
+    - 'feature/*'
+  workflow_dispatch:
+
+# Comment
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run PSRule analysis
+      uses: microsoft/ps-rule@main
+      with:
+        inputType: 'repository'                                        # Optional. Determines the type of input to use for PSRule. 'repository or 'inputPath'
+        #inputPath: '/infrastructure/bicep'                                            # Optional. The path PSRule will look for files to validate.
+        modules: 'PSRule.Rules.Azure,PSRule.Rules.CAF'                                              # Optional. A comma separated list of modules to use for analysis.
+        #source: string                                               # Optional. A path containing rules to use for analysis.
+        baseline: 'Azure.GA_2024_03'                                             # Optional. The name of a PSRule baseline to use.
+        #conventions: string                                          # Optional. A comma separated list of conventions to use.
+        #option: string                                               # Optional. The path to an options file.
+        outcome: Fail, Pass, Error, Processed, Problem, All          # Optional. Filters output to include results with the specified outcome.
+        outputFormat: Sarif                                          # Optional. The format to use when writing results to disk.
+        outputPath: 'reports/ps-rule-results.sarif'                                             # Optional. The file path to write results to.
+        path: './'                                                   # Optional. The working directory PSRule is run from.
+        prerelease: false                                          # Optional. Determine if a pre-release module version is installed.
+        summary: true                                             # Optional. Determines if a job summary is written.
+      
+    - name: Upload results to security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'reports/ps-rule-results.sarif'
+        category: 'PSRule'

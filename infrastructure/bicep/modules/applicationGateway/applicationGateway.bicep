@@ -181,7 +181,7 @@ resource appGw 'Microsoft.Network/applicationGateways@2023-11-01' = {
           protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
-          requestTimeout: 30
+          requestTimeout: 300
           probe: {
             id: resourceId('Microsoft.Network/applicationGateways/probes', appGatewayName, internalHealthProbeName)
           }
@@ -194,7 +194,7 @@ resource appGw 'Microsoft.Network/applicationGateways@2023-11-01' = {
           protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
-          requestTimeout: 30
+          requestTimeout: 300
           probe: {
             id: resourceId('Microsoft.Network/applicationGateways/probes', appGatewayName, externalHealthProbeName)
           }

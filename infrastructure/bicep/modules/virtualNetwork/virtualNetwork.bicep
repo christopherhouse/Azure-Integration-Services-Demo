@@ -1,26 +1,14 @@
+import * as udt from '../userDefined/userDefinedTypes.bicep'
+
 param virtualNetworkName string
 param location string
 param virtualNetworkAddressSpaces string[]
 param apimNsgResourceId string
 param appGatewayNsgResourceId string
 param defaultNsgResourceId string
-param subnetConfiguration subnetConfigurationsType
+param subnetConfiguration udt.subnetConfigurationsType
 param tags object = {}
 
-@export()
-type subnetConfigurationType = {
-  name: string
-  addressPrefix: string
-}
-
-@export()
-type subnetConfigurationsType = {
-  apimSubnet: subnetConfigurationType
-  runnersSubnet: subnetConfigurationType
-  aseSubnet: subnetConfigurationType
-  servicesSubnet: subnetConfigurationType
-  appGwSubnet: subnetConfigurationType
-}
 
 var aseDelegation = 'Microsoft.Web/hostingEnvironments'
 
@@ -33,6 +21,14 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
       addressPrefixes: virtualNetworkAddressSpaces
     }
     subnets: [
+      {
+        name: subnetConfiguration.bastionSubnet.name
+        properties: {
+          addressPrefix: subnetConfiguration.bastionSubnet.addressPrefix
+          privateEndpointNetworkPolicies: 'Disabled'
+          privateLinkServiceNetworkPolicies: 'Disabled'
+        }
+      }
       {
         name: subnetConfiguration.apimSubnet.name
         properties: {
@@ -83,6 +79,48 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
           addressPrefix: subnetConfiguration.runnersSubnet.addressPrefix
           networkSecurityGroup: {
             id: defaultNsgResourceId
+          }
+        }
+      }
+    ]
+  }
+}
+
+resource pip 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
+  name: '${vnet.name}-bas-pip'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'Static'
+  }
+
+}
+
+resource bas 'Microsoft.Network/bastionHosts@2024-01-01' = {
+  name: '${vnet.name}-bas'
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    scaleUnits: 2
+    enableFileCopy: true
+    enableIpConnect: false
+    enableTunneling: true
+    disableCopyPaste: false
+    enableKerberos: false
+    enableShareableLink: false
+    ipConfigurations: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          subnet: {
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnetConfiguration.bastionSubnet.name)
+          }
+          publicIPAddress: {
+            id: pip.id
           }
         }
       }
