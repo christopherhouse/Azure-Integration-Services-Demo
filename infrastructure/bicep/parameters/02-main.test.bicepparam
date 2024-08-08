@@ -35,13 +35,13 @@ param externalApimHostNameDnsConfiguration = {
   zoneName: 'chrishou.se'
   hostName: 'api.bw'
   certificateKeyVaultUri: 'https://bw-ais-test-kv.vault.azure.net/secrets/api-bw-chrishou-se'
-  deployCustomHostName: true
+  deployCustomHostName: false
 }
 param internalApimHostnameDnsConfiguration = {
   zoneName: 'chrishou.se'
   hostName: 'internal.api.bw'
   certificateKeyVaultUri: 'https://bw-ais-test-kv.vault.azure.net/secrets/internal-api-bw-chrishou-se'
-  deployCustomHostName: true
+  deployCustomHostName: false
 }
 param appGatewayPublicIpName = 'bw-ais-test-appgw-pip'
 param appGatewayWafMode = 'Prevention'
