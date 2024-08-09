@@ -61,4 +61,19 @@ param appServicePlans = [
       OwnerEmail: 'chhouse@microsoft.com'
     }
   }
+  {
+    appServicePlanNameSuffix: 'supplychain'
+    appServicePlanSku: 'I1v2'
+    contributorGroupObjectId: 'c09efc41-06c1-4480-b3af-1bdab4f127b8'
+    instanceCount: 1
+    zones: ['1']
+    resourceGroupName: 'BW-AIS-SUPPLYCHAIN-DEV'
+    tags: {
+      Workload: 'Integration Platform - Supply Chain'
+      Environment: environmentSuffix
+      CostCenter: 'SC-100'
+      Owner: 'Chris House'
+      OwnerEmail: 'chhouse@microsoft.com'
+  }
+    }
 ]
